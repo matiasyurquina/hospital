@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content%}
+<title> Buscar por DNI </title>
+
+<div class="container">
+    <p >
+      <h4 class="text-danger">{{error}}</h4>
+    </p>
+</div>
+
+<div class="container">
+    <div>
+        <br>
+        <form action="" method="POST"> {%csrf_token%}
+            <label>Ingrese el DNI <input class="form-control" type="text" id="dni" name="dni" pattern="[0-9]{3,9}" required></label>
+            <input class="btn btn-primary mb-2" type="submit" value="Buscar" >
+        </form>
+    </div>
+</div>
+
+{% endblock %}

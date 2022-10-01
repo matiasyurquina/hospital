@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+<title>
+    Activación
+</title>
+{% block content %}
+<div class="container">
+    <div class="py-5 text-center">
+        <form action="" method="POST"> {%csrf_token%}
+            <h3>Activación del programa de Registro de Niños</h3>
+            <p>Copie su código de programa y envíelo al correo <strong>matias_cx@yahoo.com.ar</strong></p>
+            <label for="txtCode">Éste es su <strong>código de programa: </strong><input type="text" id="txtCode" name="txtCode" value="{{activation_code}}" readonly></label>
+            <br>
+            <label for="txtActivate">Ingrese su código de activación: <input type="text" id="txtActivate" name="txtActivate" required></label>
+            <br>
+            <input type="submit" value="Activar">
+        </form>
+        <h4 class="text-danger">{{error}}</h4>
+    </div>
+
+</div>
+{% endblock %}
+

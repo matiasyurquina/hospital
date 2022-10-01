@@ -1,0 +1,3 @@
+***Se debe instalar postgres, python y django antes de hacer lo siguiente ***
+1 - POR ÚNICA VEZ abrir el ejecutable "instalar.bat"
+2 - SIEMPRE antes de abrir el programa se debe abrir el ejecutable "abrir.bat" y MANTENERLO ABIERTO mientras se usa

@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+</style>
+
+<!-- <link href="{% static 'form-validation.css' %}" rel="stylesheet"> -->
+</head>
+<body class="bg-light">
+<div class="container">
+<main>
+  <div class="py-5 text-center">
+    <h2>Ingreso de Datos</h2>
+    <p class="lead">Ingresar todos los datos necesarios por favor, de lo contrario los datos no se guardarán</p>
+  </div>
+  <div class="row g-5">
+    <div class="col-md-5 col-lg-4 order-md-last">
+    </div>
+    <div class="col-md-7 col-lg-8">
+      <h3 class="text-success"> <strong>{{activated}}</strong></h3>
+      <h4 class="mb-3">Datos</h4>
+      <form action="" method="POST" class="needs-validation" > {%csrf_token%}
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <label for="firstName" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="firstName" name="name" placeholder="" value="" pattern="[a-zA-Z áÁéÉíÍóÓúÚ]{2,100}" required>
+            <div class="invalid-feedback">
+              Nombre inválido
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+            <label for="lastName" class="form-label">Apellido</label>
+            <input type="text" class="form-control" id="lastName" name="lname" placeholder="" value="" pattern="[a-zA-Z áÁéÉíÍóÓúÚ]{2,100}" required>
+            <div class="invalid-feedback">
+              Apellido inválido
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+            <label for="dni" class="form-label">DNI</label>
+            <input type="number" class="form-control" id="dni" name="dni" min="999" max="9999999999" placeholder="Ej: 39123456 SIN PUNTOS" value="" required>
+            <div class="invalid-feedback">
+              DNI inválido
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+            <label for="cel" class="form-label">Celular (Opcional)</label>
+            <input type="number" class="form-control" id="cel" name="cel" min="1000000000" max="9999999999" placeholder="Ej: 3871234567 SIN 15 Y SIN 0">
+            <div class="invalid-feedback">
+              Número inválido
+            </div>
+          </div>
+
+
+          <div class="col-sm-6">
+            <br>
+            <label for="address" class="form-label">Dirección</label>
+            <input type="text" class="form-control" id="address" name="dir" placeholder="Ej: 9 de Julio 358" required>
+            <div class="invalid-feedback">
+              Ingrese una dirección
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+            <br>
+            <label for="email" class="form-label">Email <span class="text-muted">(Opcional)</span></label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="correo@dominio.com">
+            <div class="invalid-feedback">
+              Mail no válido
+            </div>
+          </div>
+
+          <div class="col-sm-12">
+            <br>
+            <label for="barrio" class="form-label">Barrio <span class="text-muted"></span></label>
+            <input type="text" class="form-control" id="barrio" name="barrio" required>
+            <div class="invalid-feedback">
+              Debe ingresar un valor
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+            <br>
+            <label for="dniTutor" class="form-label">DNI Tutor</label>
+            <input type="number" class="form-control" id="dniTutor" name="dniTutor" min="999" max="999999999999" placeholder="DNI sin puntos" required>
+            <div class="invalid-feedback">
+              Ingrese el DNI del tutor
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+            <br>
+            <label for="tutor" class="form-label">Tutor</label>
+            <input type="text" class="form-control" id="tutor" name="tutor" placeholder="" pattern="[a-zA-Z áÁéÉíÍóÓúÚ]{2,100}" required>
+            <div class="invalid-feedback">
+              Ingrese un Tutor
+            </div>
+          </div>
+        </div>
+          <br><br>
+          <div class="col-md-5">
+            <label for="pais" class="form-label">País</label>
+            <select class="form-select" id="pais" name="pais" required>
+              {% for pais in paises %} 
+                {%if pais.idPais == 5 %} 
+                  <option value="{{pais.idPais}}" selected>{{pais.pais}}</option>
+                {%else%}
+                  <option value="{{pais.idPais}}">{{pais.pais}}</option>
+                {%endif%}
+              {% endfor %}
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar un país
+            </div>
+          </div>
+        
+          <div class="col-md-4">
+            <br>
+            <label for="sexo" class="form-label">Sexo</label>
+            <select class="form-select" id="sexo" name="sexo" required>
+              <option value="True">Masculino</option>
+              <option value="False">Femenino</option>
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar un sexo
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <br>
+            <label for="osocial" class="form-label">Obra Social</label>
+            <select class="form-select" id="osocial" name="osocial" required>
+            {% for os in osociales %} <!-- recorro las obras sociales-->
+                <p> <option value="{{os.idOsocial}}">{{os.obraSocial}}</option></p>
+            {% endfor %}
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar una obra social
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <br>
+            <label for="localidad" class="form-label">Localidad</label>
+            <select class="form-select" id="localidad" name="localidad" required>
+
+              {% for loc in localidades %}
+                {% if loc.idLocalidad == 9 %} <!--Acá selecciono Saravia-->
+                  <option value="{{loc.idLocalidad}}" selected>{{loc.localidad}}</option>
+                {%else%}
+                  <option value="{{loc.idLocalidad}}">{{loc.localidad}}</option>
+                {%endif%}
+                
+              {%endfor%}
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar una localidad
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <br>
+            <label for="escuela" class="form-label">Escuela</label>
+            <select class="form-select" id="escuela" name="escuela" required>
+            {%for esc in escuelas%}
+              <option value="{{esc.idEsc}}">{{esc.escuela}}</option>
+            {%endfor%}
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar una Escuela
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <br>
+            <label for="nac" class="form-label">Fecha de Nacimiento</label>
+            <input type="date" name="nac" value="2018-01-01">
+            <div class="invalid-feedback">
+              Debe seleccionar una fecha
+            </div>
+          </div>
+          <br>
+          <button  class="w-100 btn btn-primary btn-lg" type="submit">Registrar</button>
+      </form>
+    </div>
+  </div>
+</main>
+<!--<script src="{% static 'form-validation.js'%}"></script>-->
+
+{% endblock %}

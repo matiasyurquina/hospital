@@ -1,0 +1,1 @@
+create database hospital with encoding='UTF8' connection limit=-1
