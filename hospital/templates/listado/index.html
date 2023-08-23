@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+
+    {% block title %}
+    <title>Listado</title>
+    {% endblock%}
+<br>
+<body class="bg-light">
+    <div>
+        <ul class="d-lg-block btn-sm">
+               <li class= ".d-sm-none btn btn-primary"><h5><a class="text-light" href="{%url 'ListPorAnio'%}">Listar por Año</a></h5></li>
+                <li class=".d-sm-none btn btn-primary"><h5><a class="text-light" href="{%url 'ListAlfa'%}">Listar por orden alfabético</a></h5></li>
+                <li class=".d-sm-none btn btn-primary"><h5><a class="text-light" href="{%url 'buscarNombre'%}">Buscar por Nombre</a></h5></li>
+                <li class=".d-sm-none btn btn-primary"><h5><a class="text-light" href="{%url 'buscarDNI'%}">Buscar por DNI</a></h5></li>
+        </ul>
+   </div>
+</body>
+
+{% endblock %}

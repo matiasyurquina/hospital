@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load static %}
+
+<title>Página no encontrada</title>
+
+{% block content %}
+    <h3 class="py-5 text-center">Esta página no existe</h3> 
+    <img src="{% static 'error404.jpg' %}">
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<title>Error escuela</title>
+
+<h3 class="py-5 text-center text-danger">{{error}}</h3>
+<div class="py-5 text-center">
+    <button onclick="history.back()" class="btn btn-primary"> Editar escuela </button>
+</div>
+
+{% endblock %}

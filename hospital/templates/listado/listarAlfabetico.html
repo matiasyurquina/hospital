@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% block title%}
+<title>Listado Alfabético</title>
+{% endblock %}
+
+<body >
+    <div class="row-col-5">
+        <div class="container">
+            <div class="col">
+                <table class="table table-responsive table-striped">
+                    <tbody class="">
+                        <!--table-dark-->
+                        <thead>
+                            <th>Apellido</th>
+                            <th>Nombre</th>                            
+                            <th>DNI</th>
+                            <th>Celular</th>
+                            <th>Correo</th>
+                            <th>Tutor</th>
+                            <th>-</th>
+                        </thead>
+
+                        {%for c in chicos %}
+                            <tr scope="row" >
+                                <form method="POST">
+                                    {%csrf_token%}
+                                    <td>{{c.apellido}}</td>
+                                    <td>{{c.nombre}}</td>
+                                    <td>{{c.dni}}</td>
+                                    <td>{{c.cel}}</td>
+                                    <td>{{c.email}}</td>
+                                    <td>{{c.pmot}}</td>
+                                    <input type="hidden" value="{{c.idPersona}}" name="idPersona" id="idPersona">
+                                    <td><button type="submit" class="btn btn-primary btn-sm">Ver</a></td>
+                                </form>
+                            </tr>
+                        {% endfor %} 
+                    </tbody>
+                </table>
+                {% if chicos.has_previous %}
+                    <a class="btn btn-primary" href="?page={{chicos.previous_page_number}}" >Anterior</a>
+                {% endif %}
+
+                {% if chicos.has_next %}
+                    <a class="btn btn-primary" href="?page={{chicos.next_page_number}}" >Siguiente</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+{% endblock %}
