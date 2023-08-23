@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <title>Error</title>
+
+    <h3 class="py-5 text-center text-danger">{{error}}</h3>
+    <div class="py-5 text-center">
+        <button onclick="history.back()" class="btn btn-primary"> Editar DNI </button>
+    </div>
+{% endblock %}
+

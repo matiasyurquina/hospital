@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% block title %}
+       <title> Ver/Editar Datos de alumno </title>
+    {% endblock %}
+<br>
+{% if error != '' %}
+<div class="container">
+  <p >
+    <h4 class="text-danger">{{error}}</h4>
+  </p>
+</div>
+{%endif%}
+<body class="bg-light">
+  <form action="" method="POST"> {%csrf_token%}
+  <div class="container">    
+  
+    <div class="row g-3">
+
+        <div class="col-sm-6">
+          <label for="firstName" class="form-label">Nombre</label>
+          <input type="text" class="form-control" id="firstName" name="name" placeholder="" value="{{persona.nombre}}" pattern="[a-zA-Z áÁéÉíÍóÓúÚ]{2,100}"  required>
+          <div class="invalid-feedback">
+            Nombre inválido
+          </div>
+        </div>
+
+        <div class="col-sm-6">
+          <label for="lastName" class="form-label">Apellido</label>
+          <input type="text" class="form-control" id="lastName" name="lname" placeholder="" value="{{persona.apellido}}" pattern="[a-zA-Z áÁéÉíÍóÓúÚ]{2,100}" required>
+          <div class="invalid-feedback">
+            Apellido inválido
+          </div>
+        </div>
+
+        <div class="col-sm-6">
+          <label for="dni" class="form-label">DNI</label>
+          <input type="number" class="form-control" id="dni" name="dni" placeholder="Ej: 39123456 SIN PUNTOS" value="{{persona.dni}}" required>
+          <div class="invalid-feedback">
+            DNI inválido
+          </div>
+        </div>
+
+        <div class="col-sm-6">
+          <label for="cel" class="form-label">Celular (Opcional)</label>
+          <input type="number" class="form-control" id="cel" name="cel" min="0" max="9999999999" placeholder="Ej: 3871234567 SIN 15 Y SIN 0" value="{{persona.cel}}">
+          <div class="invalid-feedback">
+            Número inválido
+          </div>
+        </div>
+
+
+        <div class="col-sm-6">
+          <br>
+          <label for="address" class="form-label">Dirección</label>
+          <input type="text" class="form-control" id="address" name="dir" placeholder="Ej: 9 de Julio 358" value="{{persona.calle}}" required>
+
+        </div>
+
+        <div class="col-sm-6">
+          <br>
+          <label for="email" class="form-label">Email <span class="text-muted">(Opcional)</span></label>
+          <input type="email" class="form-control" id="email" name="email" placeholder="correo@dominio.com" value="{{persona.email}}">
+          <div class="invalid-feedback">
+            Mail no válido
+          </div>
+        </div>
+
+        <div class="col-sm-12">
+          <br>
+          <label for="barrio" class="form-label">Barrio <span class="text-muted"></span></label>
+          <input type="text" class="form-control" id="barrio" name="barrio" value="{{persona.barrio}}" required>
+          <div class="invalid-feedback">
+            Debe ingresar un valor
+          </div>
+        </div>
+
+        <div class="col-sm-6">
+          <br>
+          <label for="dniTutor" class="form-label">DNI Tutor</label>
+          <input type="number" class="form-control" id="dniTutor" name="dniTutor" min="999" max="999999999999" placeholder="DNI sin puntos" value="{{persona.dniTutor}}" required>
+          <div class="invalid-feedback">
+            Ingrese el DNI del tutor
+          </div>
+        </div>
+
+        <div class="col-sm-6">
+          <br>
+          <label for="tutor" class="form-label">Tutor</label>
+          <input type="text" class="form-control" id="tutor" name="tutor" placeholder="" value="{{persona.pmot}}" pattern="[a-zA-Z áÁéÉíÍóÓúÚ]{2,100}" required>
+          <div class="invalid-feedback">
+            Ingrese un Tutor
+          </div>
+        </div>
+      </div>
+        <br><br>
+        <div class="col-md-5">
+          <label for="pais" class="form-label">País</label>
+          <select class="form-select" id="idPais" name="idPais" required>
+            {% for pais in paises %} 
+              {%if pais.idPais == persona.idPais.idPais %}
+                <option value="{{persona.idPais.idPais}}" selected>{{persona.idPais.pais}}</option>
+              {%else%}
+                <option value="{{pais.idPais}}">{{pais.pais}}</option>
+              {%endif%}
+            {% endfor %}
+          </select>
+          <div class="invalid-feedback">
+            Debe seleccionar un país
+          </div>
+        </div>
+      
+        <div class="col-md-4">
+          <br>
+          <label for="sexo" class="form-label">Sexo</label>
+          <select class="form-select" id="sexo" name="sexo" required>
+              {% if persona.sexo %}
+              
+              <option value="True" selected>Masculino</option>
+              <option value="False">Femenino</option>
+
+              {%else%}
+              
+              <option value="False" selected>Femenino</option>
+              <option value="True">Masculino</option>                
+
+              {%endif%}
+            
+          </select>
+          <div class="invalid-feedback">
+            Debe seleccionar un sexo
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <br>
+          <label for="osocial" class="form-label">Obra Social</label>
+          <select class="form-select" id="idObra" name="idObra" required>
+          {% for os in osociales %} <!-- recorro las obras sociales-->
+                {% if os.idOsocial == persona.idObra.idOsocial %}
+                    <p> <option value="{{persona.idObra.idOsocial}}" selected>{{persona.idObra.obraSocial}}</option></p>
+                {%else%}
+                    <p> <option value="{{os.idOsocial}}">{{os.obraSocial}}</option></p>
+                {%endif%}
+          {% endfor %}
+              
+          </select>
+        </div>
+        <div class="col-md-4">
+          <br>
+          <label for="localidad" class="form-label">Localidad</label>
+          <select class="form-select" id="idLocalidad" name="idLocalidad" required>
+
+            {% for loc in localidades %}
+                {% if persona.idLocalidad.idLocalidad == loc.idLocalidad%}
+                    <option value="{{persona.idLocalidad.idLocalidad}}" selected>{{persona.idLocalidad.localidad}}</option>
+                {%else%}
+                    <option value="{{loc.idLocalidad}}">{{loc.localidad}}</option>
+                {%endif%}
+            {%endfor%}
+        </select>
+        </div>
+
+        <div class="col-md-4">
+          <br>
+          <label for="escuela" class="form-label">Escuela</label>
+          <select class="form-select" id="idEsc" name="idEsc" required>
+          {%for e in escuelas%}
+          {% if persona.idEsc.idEsc == e.idEsc %}
+                <option value="{{persona.idEsc.idEsc}}" selected>{{persona.idEsc.escuela}}</option>
+            {%else%}
+                <option value="{{e.idEsc}}">{{e.escuela}}</option>
+            {%endif%}
+            
+          {%endfor%}
+          </select>
+          <div class="invalid-feedback">
+            Debe seleccionar una Escuela
+          </div>
+        </div>
+        <div class="col-md-4">
+          <br>
+          <label for="nac" class="form-label">Fecha de Nacimiento</label>
+          <input minlength="2010-01-01" type="date" name="nac" value="{{persona.nac.year}}-{%if persona.nac.month > 9 %}{{persona.nac.month}}{%else%}0{{persona.nac.month}}{%endif%}-{%if persona.nac.day > 9 %}{{persona.nac.day}}{%else%}0{{persona.nac.day}}{%endif%}">
+          <div class="invalid-feedback">
+            Debe seleccionar una fecha
+          </div>
+        </div>
+        <br>
+        <input type="hidden" name="update" value="True">
+        <input type="hidden" name="idPersona" value="{{persona.idPersona}}"> 
+        <button class="w-20 btn btn-primary btn-lg"  type="submit">Guardar Cambios</button>
+        <button class="w-20 btn btn-primary btn-lg" type="button" onclick="redir(dir);" >Cancelar</button>
+  
+</div>
+</form>
+</body>
+
+<script>
+  function redir(dir) {
+    location.replace(dir)
+  }
+</script>
+  
+{% endblock %}
