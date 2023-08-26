@@ -6,7 +6,7 @@ from hospital import views
 
 urlpatterns = [
     #path('admin/', admin.site.urls),
-    path('', views.isActivatedView, name="Create"),
+    path('', views.create, name="home"),
     #path('pdf/', views.some_view, name="pdf"),
     
     path('create/', views.create, name="Create"),    

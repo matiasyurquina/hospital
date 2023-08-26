@@ -42,16 +42,29 @@ def some_view(request):
     return FileResponse(buffer, as_attachment=True, filename='hello.pdf')
 
 #*************QuerySets Varios***********
-global paises 
-paises = Pais.objects.all().order_by('pais')
-global osociales 
-osociales = ObraSocial.objects.all().order_by('obraSocial')
-global localidades 
-localidades = Localidad.objects.all()
-global escuelas 
-escuelas = Escuela.objects.all().order_by('escuela')
+def getPaises():
+    return Pais.objects.all().order_by('pais')
+
+def getOSociales():
+    return ObraSocial.objects.all().order_by('obraSocial')
+
+def getLocalidades():
+    return Localidad.objects.all().order_by('localidad')
+
+def getEscuelas():
+    return Escuela.objects.all().order_by('escuela')
+# global paises 
+# 
+# global osociales 
+# 
+# global localidades 
+# 
+# global escuelas 
+# escuelas = 
 #*********************variables globales*************
-anio=2022
+fechaActual = datetime.now()
+anio = fechaActual.year
+byName = ''
 isActivated = False
 
 def set_anio(param):
@@ -61,16 +74,34 @@ def set_anio(param):
 def get_anio():
     return anio
 
-byName = ''
-def set_byName(param):
-    global byName 
-    byName = param
-
-def get_byName():
-    return byName
+def getPersonabyID(p)->Persona:
+    try:
+        return Persona.objects.get(idPersona=p)
+    except:
+        return None
+    
+def getPersonabyDNI(p):
+    try:
+        return Persona.objects.get(dni=p)
+    except:
+        return None
 
 def handle_not_found(request, exception):
     return render(request, "not_found.html")
+
+
+def saveReg(reg):
+
+    try:
+        reg.save()
+        result = 0
+        return result
+    except IntegrityError:
+        result = 1
+        return result
+    except:
+        result = 2
+        return result
 
 
 def isActivatedFunc():
@@ -115,90 +146,81 @@ def isActivatedView(request): #Devuelve si no está activado
 
 def updateList(param):#actualizar Lista de escuelas u obras sociales
     if param == 1:
-        osociales = ObraSocial.objects.all().order_by('obraSocial')
+        osociales = getOSociales()
     else:
-        escuelas = Escuela.objects.all().order_by('escuela')
+        escuelas = getEscuelas()
 
 def updateReg(request):
 
     if request.POST.get('update')=='True': #Si se hizo submit en el form para editar
         p = request.POST
-        idPersona = f"{p.get('idPersona')}"
-        name = f"'{p.get('name')}'"
-        lname= f"'{p.get('lname')}'"
-        dni = f"{p.get('dni')}"
-        sexo = f"{p.get('sexo')}"
+        idPersona = p.get('idPersona')
+
+        pers = getPersonabyID(idPersona)#Persona.objects.get(idPersona=idPersona)
+        pers.nombre = p.get('name').upper().strip(" ")
+        pers.apellido = p.get('lname').upper().strip(" ")
+        pers.dni = p.get('dni')
+        pers.sexo = p.get('sexo')
 
         if p.get('cel')==None:
-            cel = 0
+            pers.cel = 0
         else:
-            cel = f"{p.get('cel')}"
+            pers.cel = p.get('cel')
 
-        dir = f"'{p.get('dir')}'"
-        email = f"'{p.get('email')}'"
-        barrio = f"'{p.get('barrio')}'"
-        dniTutor = f"{p.get('dniTutor')}"
-        tutor = f"'{p.get('tutor')}'"
-        nac = f"'{p.get('nac')}'"
-        idObra = f"{p.get('idObra')}"
-        idPais = f"{p.get('idPais')}"
-        idLocalidad = f"{p.get('idLocalidad')}"
-        idEsc = f"{p.get('idEsc')}"
-        try:
-            sql = connection.cursor()
-            arg = f"SELECT * FROM editar_registro({idPersona}, {dni}, {name}, {lname}, {sexo}, {nac}, {email}, {cel}, {dir}, {barrio}, {idLocalidad}, {idPais}, {idEsc}, {idObra}, {tutor}, {dniTutor})"
-            sql.execute(arg)
-        except InternalError as msg:
-            persona = Persona.objects.get(idPersona=idPersona)
-            msgError = str(msg.__context__).split('\n')
-            ctx = {'idPersona': idPersona, 'persona': persona, 'paises': paises, 'osociales': osociales, 'localidades':localidades, 'escuelas':escuelas, 'error': msgError[0]}
-            return render(request, 'listado/verAlfa.html', ctx)
+        pers.dir = p.get('dir').upper().strip(" ")
+        pers.email = p.get('email').upper().strip(" ")
+        pers.barrio = p.get('barrio').upper().strip(" ")
+        pers.dniTutor = p.get('dniTutor')
+        pers.pmot = p.get('tutor').upper().strip(" ")
+        pers.nac = p.get('nac')
+        pers.idPais = Pais.objects.get(idPais=p.get('idPais'))
+        pers.idObra = ObraSocial.objects.get(idOsocial=p.get('idObra'))
+        pers.idLocalidad = Localidad.objects.get(idLocalidad=p.get('idLocalidad'))
+        pers.idEsc = Escuela.objects.get(idEsc=p.get('idEsc'))
+        res = saveReg(pers)
+        return res
+    else:
+        return -1
     
 def create(request):#index
     if isActivatedFunc()==False:
         return isActivatedView(request) 
+    
+    if request.POST:
+        P = request.POST #P mayúscula, la otra es minúscula
+        #asigno los valores del form al objeto persona
+        p = Persona()
+        p.idPersona = Persona.objects.all().__len__()+1
+        p.nombre = P['name'].upper().strip(" ")
+        p.apellido = P['lname'].upper().strip(" ")
+        p.dni = P['dni']
+        if P.get('cel') == "":
+            p.cel =  0
+        else:
+            p.cel = P['cel']
 
-    if request.method == "POST":
-        frm=FormNewPerson(request.POST)
-        if frm.is_valid(): #se validaron los datos
-            try:
-                    for p in request.POST:
-                        p.strip() #le hago trim() a todos los parámetros
+        p.dir = P['dir'].upper().strip(" ")
+        p.email = P['email'].upper().strip(" ")
+        p.barrio = P['barrio'].upper().strip(" ")
+        p.dniTutor = P['dniTutor']
+        p.pmot = P['pmot'].upper().strip(" ") #padre madre o tutor
+        p.sexo = P['sexo']
+        p.idPais = Pais.objects.get(idPais=P['pais'])
+        p.idObra = ObraSocial.objects.get(idOsocial=P['osocial'])
+        p.idLocalidad = Localidad.objects.get(idLocalidad=P['localidad'])
+        p.idEsc = Escuela.objects.get(idEsc=P['escuela'])
+        p.nac = P['nac']
 
-                    P = request.POST #P mayúscula, la otra es minúscula
-                    #asigno los valores del form al objeto persona
-                    p = Persona()
-                    p.idPersona = Persona.objects.all().__len__()+1
-                    p.nombre = P['name'].upper()
-                    p.apellido = P['lname'].upper()
-                    p.dni = P['dni']
-                    if p.cel == None:
-                        p.cel =  0
-                    else:
-                        p.cel =  P['cel']
+        res = saveReg(p)
 
-                    p.calle = P['dir'].upper()
-                    p.email = P['email']
-                    p.barrio = P['barrio'].upper()
-                    p.dniTutor = P['dniTutor']
-                    p.pmot = P['tutor'].upper() #padre madre o tutor
-                    p.idPais = Pais.objects.get(idPais=P['pais'])
-                    p.sexo = P['sexo']
-                    p.idObra = ObraSocial.objects.get(idOsocial=P['osocial'])
-                    p.idLocalidad = Localidad.objects.get(idLocalidad=P['localidad'])
-                    p.idEsc = Escuela.objects.get(idEsc=P['escuela'])
-                    p.nac = P['nac']
-                    p.save()
-
-                    return render(request, "create/success.html")
-            except IntegrityError:#error de llaves duplicadas
-                return render(request, "create/error.html", {'error': 'El DNI ingresado ya existe!'})
-            except:
-                return render(request, "create/error.html", {'error': 'Ocurrió un error inesperado, intente nuevamente!'})
-        else:#se ingresa por primera vez
-            return render(request, "create/index.html")
-    else:#Si el método es distintoa POST
-        return render(request, "create/index.html", {'paises': paises, 'osociales': osociales, 'localidades': localidades, 'escuelas': escuelas})
+        if res == 0:
+            return render(request, "create/success.html")
+        elif res == 1:
+            return render(request, "create/error.html", {'error': 'El DNI ingresado ya existe!'})
+        else:
+            return render(request, "create/error.html", {'error': 'Ocurrió un error inesperado, intente nuevamente!'})
+    else:#Si No hay nada en el POST
+        return render(request, "create/index.html", {'paises': getPaises(), 'osociales': getOSociales(), 'localidades': getLocalidades(), 'escuelas': getEscuelas()})
 
 def update(request):
     form=FormNewPerson(request.POST)
@@ -208,20 +230,17 @@ def buscarPorDNI(request):#Vista nueva Obra Social
     if isActivatedFunc()==False:
         return isActivatedView(request) 
 
-    P = request.POST.get('dni')
-    
-    updateReg(request)
-    
-    if P == None: #si el dni no se ingresó
-        return render(request, "listado/buscarPorDNI/index.html")
-    else: #si el dni SE INGRESÓ
-        try:
-            persona = Persona.objects.get(dni=P)
-            ctx = {'paises': paises, 'osociales': osociales, 'localidades': localidades, 'escuelas':escuelas, 'persona':persona}
-            return render(request, "listado/verAlfa.html", ctx)
-        except:
+    P = getPersonabyDNI(request.POST.get('dni'))
+    #updateReg(request)
+    if request.POST:#se hizo submit
+        if P == None: #si el dni no se ingresó o si no se encuentra nada
             error = 'No se encontró el DNI ingresado'
             return render(request, "listado/buscarPorDNI/index.html", {'error': error})
+        else: #si el dni SE INGRESÓ
+            ctx = {'paises': getPaises(), 'osociales': getOSociales(), 'localidades': getLocalidades(), 'escuelas':getEscuelas(), 'persona':P}
+            return render(request, "listado/verAlfa.html", ctx)
+    else:
+        return render(request, "listado/buscarPorDNI/index.html")
         
 
 def listado(request):
@@ -231,25 +250,32 @@ def listado(request):
 #************************************LISTADO POR NOMBRE************************************
 def buscarPorNombre(request):#EDIT
     #TERCERO
+    byName = ""
     if isActivatedFunc()==False:
-        return isActivatedView(request) 
-
-    updateReg(request)
-    if request.POST.get('byName') != None:
-        set_byName(request.POST.get('byName'))
+        return isActivatedView(request)
+    
+    res = updateReg(request)
+    
     if request.POST.get('idPersona') != None:#se aprieta el botón VER
-        P = request.POST.get('idPersona')
-        persona = Persona.objects.get(pk=P)
-        try:
-            ctx = {'idPersona': P, 'persona': persona, 'paises': paises, 'osociales': osociales, 'localidades':localidades, 'escuelas':escuelas}
+        
+        persona = getPersonabyID(request.POST.get('idPersona'))
+        if res == 0:#esto significa que nunca se hizo click en GUARDAR
+            ctx = {'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades':getLocalidades(), 'escuelas':getEscuelas()}
             return render(request, 'listado/verAlfa.html', ctx)
-        except:
-            return render(request, 'listado/buscarPorNombre/index.html', {'error': 'Ocurrió un error insperado'})
+        elif res == 1:
+            error = "El DNI ingresado ya existe"
+            ctx = {'error': error, 'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades':getLocalidades(), 'escuelas':getEscuelas()}
+            return render(request, 'listado/verAlfa.html', ctx)
+        elif res == 2:
+            error = "Ocurrió un error inesperado"
+            ctx = {'error': error, 'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades':getLocalidades(), 'escuelas':getEscuelas()}
+            return render(request, 'listado/verAlfa.html', ctx)
+        # ctx = {'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades':getLocalidades(), 'escuelas':getEscuelas()}
+        # return render(request, 'listado/verAlfa.html', ctx)
 
-    if get_byName() == '': #Recién ingresa
-        return render(request, 'listado/buscarPorNombre/index.html')
-    else: #Se busca un nombre
-        chicos = Persona.objects.all().filter(Q(nombre__icontains=get_byName())|Q(apellido__icontains=get_byName()))
+    if request.POST.get('byName') != None and request.POST.get('byName').strip(" ") != "":# se buscó algo
+        byName = request.POST.get('byName')
+        chicos = Persona.objects.all().filter(Q(nombre__icontains=byName)|Q(apellido__icontains=byName))
         if chicos: #Se encuentra un pendejo
             paginator = Paginator(chicos, 10)
             page = request.GET.get('page')
@@ -257,18 +283,14 @@ def buscarPorNombre(request):#EDIT
             return render(request, 'listado/buscarPorNombre/index.html', {'chicos': chicos}) #se muestran resultados
         else:#No se encuentra ningún pendejo
             return render(request, 'listado/buscarPorNombre/index.html', {'error': 'No se encontró ningún niño con el nombre indicado'})
+    else:#no se buscó nada
+        return render(request, 'listado/buscarPorNombre/index.html')
+   
 #******************************************LISTADO ALFABÉTICO********************************
 def listado_alf(request):#EDIT
 
     if isActivatedFunc()==False:
         return isActivatedView(request) 
-
-    updateReg(request)
-    
-    # if request.POST.get('dni') != None and request.POST.get('idPersona') == None:
-    #     persona = Persona.objects(dni=request.POST.get('dni'))
-    #     request.POST['idPersona'] = persona.idPersona
-    
     P = request.POST.get('idPersona')
 
     if P == None : #Si no se apretó ningun botón "Ver"
@@ -280,7 +302,7 @@ def listado_alf(request):#EDIT
     else: #Si se apretó Algún botón "ver"
 
         persona = Persona.objects.get(idPersona=P)
-        ctx = {'idPersona': P, 'persona': persona, 'paises': paises, 'osociales': osociales, 'localidades':localidades, 'escuelas':escuelas}
+        ctx = {'idPersona': P, 'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades': getLocalidades(), 'escuelas':getEscuelas()}
         return render(request, 'listado/verAlfa.html', ctx)
 #*************************************LISTADO POR AÑO*************************************
 def listado_porAnio(request):
@@ -292,47 +314,44 @@ def listado_porAnio(request):
     P = request.POST.get('idPersona')
     if P != None:
         persona = Persona.objects.get(idPersona=P)
-        ctx = {'idPersona': P, 'persona': persona, 'paises': paises, 'osociales': osociales, 'localidades':localidades, 'escuelas':escuelas}
+        ctx = {'idPersona': P, 'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades': getLocalidades(), 'escuelas':getEscuelas()}
         return render(request, 'listado/verAlfa.html', ctx)
 
-    
     if request.POST.get('anio') != None:
         set_anio(request.POST.get('anio'))
 
     arg = f"select * from get_all_years()"
     sql = connection.cursor()
     sql.execute(arg)
-    anios = list() #creo lista vacia
+    anios = list()
 
     for tupla in sql: #guardo las tuplas en la lista anios
-        anios.append(str(tupla).strip("('',)") )    
+        anios.append(str(tupla).strip("('',)") )
+
     chicos = Persona.objects.filter(fecha_registro__year=get_anio ())
     paginator = Paginator(chicos, 10)
     page = request.GET.get('page')
     chicos = paginator.get_page(page)
-    ctx = {'paises': paises, 'osociales': osociales, 'localidades':localidades, 'escuelas':escuelas, 'chicos': chicos, 'anios': anios}
+    ctx = {'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades': getLocalidades(), 'escuelas':getEscuelas()}
     return render(request, "listado/listarPorAnio.html", ctx)
 
 def NewOS(request):#Vista nueva Obra Social
     if isActivatedFunc()==False:
         return isActivatedView(request) 
 
-    if request.method == "POST":
-        frm=FormNewObra(request.POST)
-        if frm.is_valid():
-            try:
-                P = request.POST #P mayúscula, la otra es minúscula
-                ob = ObraSocial()
-                ob.idOsocial = ObraSocial.objects.all().__len__()+1
-                ob.obraSocial = P['name'].strip().upper()
-                ob.save()
-                return render(request, "obraSocial/success.html")
-            except IntegrityError:
-                return render(request, "obraSocial/error.html", {'error': 'La Escuela ingresada ya se encuentra registrada'})
-            except:
-                return render(request, "obraSocial/error.html", {'error': 'Ocurrió un eror inesperado'})
+    if request.POST:
+        os = request.POST #P mayúscula, la otra es minúscula
+        ob = ObraSocial()
+        ob.idOsocial = ObraSocial.objects.all().__len__()+1
+        ob.obraSocial = os['name'].strip().upper()
+                
+        res = saveReg(ob)
+        if res == 0: 
+            return render(request, "obraSocial/success.html")
+        elif res == 1:
+            return render(request, "obraSocial/error.html", {'error': 'La obra social ingresada ya se encuentra registrada'})
         else:
-            return render(request, "obraSocial/index.html")
+            return render(request, "obraSocial/error.html", {'error': 'Ocurrió un error inesperado'})
     else:
         return render(request, "obraSocial/index.html")
     
@@ -342,22 +361,18 @@ def NewEsc(request): #Nueva Escuela
     if isActivatedFunc()==False:
         return isActivatedView(request) 
 
-    if request.method == "POST":  
-        frm=FormNewObra(request.POST)
-        if frm.is_valid():
-            try:
-                P = request.POST #P mayúscula, la otra es minúscula
-                esc = Escuela()
-                esc.idEsc = Escuela.objects.all().__len__()+1
-                esc.escuela = P['name'].strip().upper()
-                esc.save()
-                return render(request, "Escuela/success.html")
-            except IntegrityError:
-                return render(request, "Escuela/error.html", {'error': 'La Escuela ingresada ya se encuentra registrada'})
-            except:
-                return render(request, "Escuela/error.html", {'error': 'Ocurrió un error inesperado'})
+    if request.POST:
+        e = request.POST #P mayúscula, la otra es minúscula
+        esc = Escuela()
+        esc.idEsc = Escuela.objects.all().__len__()+1
+        esc.escuela = e['name'].strip().upper()
+        res = saveReg(esc)
+        if res == 0:
+            return render(request, "Escuela/success.html")
+        elif res == 1: 
+            return render(request, "Escuela/error.html", {'error': 'La Escuela ingresada ya se encuentra registrada'})
         else:
-            return render(request, "Escuela/index.html")
+            return render(request, "Escuela/error.html", {'error': 'Ocurrió un error inesperado'})
     else:
         return render(request, "Escuela/index.html")
 

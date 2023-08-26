@@ -15,7 +15,7 @@ class Persona(models.Model):
     nac=models.DateField()
     email=models.EmailField(blank=True, null=True)
     cel=models.BigIntegerField(blank=True, null=True)
-    calle=models.CharField(max_length=100)
+    dir=models.CharField(max_length=100)
     barrio=models.CharField(max_length=50)
     pmot=models.CharField(max_length=100)
     dniTutor=models.IntegerField()
