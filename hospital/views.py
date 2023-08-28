@@ -24,6 +24,8 @@ import reportlab
 import io
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
+from django.db.models import F, Func
+
 
 def some_view(request):
     # Create a file-like buffer to receive PDF data.
@@ -151,7 +153,7 @@ def updateList(param):#actualizar Lista de escuelas u obras sociales
         escuelas = getEscuelas()
 
 def updateReg(request):
-
+    
     if request.POST.get('update')=='True': #Si se hizo submit en el form para editar
         p = request.POST
         idPersona = p.get('idPersona')
@@ -171,7 +173,7 @@ def updateReg(request):
         pers.email = p.get('email').upper().strip(" ")
         pers.barrio = p.get('barrio').upper().strip(" ")
         pers.dniTutor = p.get('dniTutor')
-        pers.pmot = p.get('tutor').upper().strip(" ")
+        pers.pmot = p.get('pmot').upper().strip(" ")
         pers.nac = p.get('nac')
         pers.idPais = Pais.objects.get(idPais=p.get('idPais'))
         pers.idObra = ObraSocial.objects.get(idOsocial=p.get('idObra'))
@@ -222,16 +224,16 @@ def create(request):#index
     else:#Si No hay nada en el POST
         return render(request, "create/index.html", {'paises': getPaises(), 'osociales': getOSociales(), 'localidades': getLocalidades(), 'escuelas': getEscuelas()})
 
-def update(request):
-    form=FormNewPerson(request.POST)
-    return render(request, "update/index.html")
 #********************************************BUSCAR POR DNI**************************************
 def buscarPorDNI(request):#Vista nueva Obra Social
     if isActivatedFunc()==False:
-        return isActivatedView(request) 
+        return isActivatedView(request)
+    updateReg(request)
 
     P = getPersonabyDNI(request.POST.get('dni'))
-    #updateReg(request)
+    if P == None:
+        P = getPersonabyID(request.POST.get('idPersona'))
+
     if request.POST:#se hizo submit
         if P == None: #si el dni no se ingresó o si no se encuentra nada
             error = 'No se encontró el DNI ingresado'
@@ -253,27 +255,15 @@ def buscarPorNombre(request):#EDIT
     byName = ""
     if isActivatedFunc()==False:
         return isActivatedView(request)
-    
     res = updateReg(request)
-    
+
     if request.POST.get('idPersona') != None:#se aprieta el botón VER
-        
         persona = getPersonabyID(request.POST.get('idPersona'))
-        if res == 0:#esto significa que nunca se hizo click en GUARDAR
-            ctx = {'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades':getLocalidades(), 'escuelas':getEscuelas()}
-            return render(request, 'listado/verAlfa.html', ctx)
-        elif res == 1:
-            error = "El DNI ingresado ya existe"
-            ctx = {'error': error, 'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades':getLocalidades(), 'escuelas':getEscuelas()}
-            return render(request, 'listado/verAlfa.html', ctx)
-        elif res == 2:
-            error = "Ocurrió un error inesperado"
-            ctx = {'error': error, 'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades':getLocalidades(), 'escuelas':getEscuelas()}
-            return render(request, 'listado/verAlfa.html', ctx)
-        # ctx = {'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades':getLocalidades(), 'escuelas':getEscuelas()}
-        # return render(request, 'listado/verAlfa.html', ctx)
+        ctx = {'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades':getLocalidades(), 'escuelas':getEscuelas()}
+        return render(request, 'listado/verAlfa.html', ctx)
 
     if request.POST.get('byName') != None and request.POST.get('byName').strip(" ") != "":# se buscó algo
+        
         byName = request.POST.get('byName')
         chicos = Persona.objects.all().filter(Q(nombre__icontains=byName)|Q(apellido__icontains=byName))
         if chicos: #Se encuentra un pendejo
@@ -284,6 +274,7 @@ def buscarPorNombre(request):#EDIT
         else:#No se encuentra ningún pendejo
             return render(request, 'listado/buscarPorNombre/index.html', {'error': 'No se encontró ningún niño con el nombre indicado'})
     else:#no se buscó nada
+
         return render(request, 'listado/buscarPorNombre/index.html')
    
 #******************************************LISTADO ALFABÉTICO********************************
@@ -300,7 +291,7 @@ def listado_alf(request):#EDIT
         chicos = paginator.get_page(page)
         return render(request, "listado/listarAlfabetico.html", {'chicos': chicos, 'idPersona':P})
     else: #Si se apretó Algún botón "ver"
-
+        updateReg(request)
         persona = Persona.objects.get(idPersona=P)
         ctx = {'idPersona': P, 'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades': getLocalidades(), 'escuelas':getEscuelas()}
         return render(request, 'listado/verAlfa.html', ctx)
@@ -308,32 +299,39 @@ def listado_alf(request):#EDIT
 def listado_porAnio(request):
 
     if isActivatedFunc()==False:
-        return isActivatedView(request) 
+        return isActivatedView(request)
         
     updateReg(request)
+
     P = request.POST.get('idPersona')
     if P != None:
-        persona = Persona.objects.get(idPersona=P)
+        persona = getPersonabyID(P)
         ctx = {'idPersona': P, 'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades': getLocalidades(), 'escuelas':getEscuelas()}
         return render(request, 'listado/verAlfa.html', ctx)
 
-    if request.POST.get('anio') != None:
-        set_anio(request.POST.get('anio'))
+    anios = Persona.objects.dates('fecha_registro', 'year').distinct()
+    listAnios = []
+    for a in anios:
+        listAnios.append(a.year)
 
-    arg = f"select * from get_all_years()"
-    sql = connection.cursor()
-    sql.execute(arg)
-    anios = list()
+    if len(listAnios) != 0:#si hay registros
+        anio_selected = request.POST.get('anio')#si se seleccionó un año
+        
+        if anio_selected != None:#se seleccionó un año
+            chicos = Persona.objects.filter(fecha_registro__year=anio_selected)
+            paginator = Paginator(chicos, 10)
+            page = request.GET.get('page')
+            chicos = paginator.get_page(page)
+            ctx = {'anios': listAnios, 'chicos': chicos}
+            return render(request, "listado/listarPorAnio.html", ctx)
+        else: #No se seleccionó nada todavía; Muestra todos los años
+            ctx = {'anios': listAnios}
+            return render(request, "listado/listarPorAnio.html", ctx)
 
-    for tupla in sql: #guardo las tuplas en la lista anios
-        anios.append(str(tupla).strip("('',)") )
+    else:#si no existen registros
+        ctx = {'error': 'No existen registros todavía en esta base de datos'}
+        return render(request, "listado/listarPorAnio.html", ctx)
 
-    chicos = Persona.objects.filter(fecha_registro__year=get_anio ())
-    paginator = Paginator(chicos, 10)
-    page = request.GET.get('page')
-    chicos = paginator.get_page(page)
-    ctx = {'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades': getLocalidades(), 'escuelas':getEscuelas()}
-    return render(request, "listado/listarPorAnio.html", ctx)
 
 def NewOS(request):#Vista nueva Obra Social
     if isActivatedFunc()==False:
