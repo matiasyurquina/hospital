@@ -4,7 +4,9 @@
     {% block title %}
        <title> Ver/Editar Datos de alumno </title>
     {% endblock %}
+{% include "listado/listMenu.html" %}
 <br>
+
 {% if error != '' %}
 <div class="container">
   <p>
@@ -21,8 +23,9 @@
         <div class="col-sm-6">
           <label for="firstName" class="form-label">Nombre</label>
           <input type="text" class="form-control" id="firstName" name="name" placeholder="" value="{{persona.nombre}}" pattern="[a-zA-Z áÁéÉíÍóÓúÚ]{2,100}"  required>
+          <br>
         </div>
-
+        
         <div class="col-sm-6">
           <label for="lastName" class="form-label">Apellido</label>
           <input type="text" class="form-control" id="lastName" name="lname" placeholder="" value="{{persona.apellido}}" pattern="[a-zA-Z áÁéÉíÍóÓúÚ]{2,100}" required>

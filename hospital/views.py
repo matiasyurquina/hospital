@@ -1,24 +1,17 @@
-#from queue import Empty
-from email import message
-from queue import Empty
-from urllib import request
 from django.db.utils import IntegrityError, InternalError
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, redirect
 from Pais.models import Pais
 from Localidad.models import Localidad
 from Escuela.models import Escuela
-from Escuela.forms import FormNewEsc
 from persona.forms import *
 from obraSocial.models import ObraSocial
-from obraSocial.forms import FormNewObra
 from persona.models import Persona
 from django.core.paginator import Paginator
-from django.db import connection
-from persona.forms import FormNewPerson
 from django.db.models import Q, Min 
 from django.contrib.auth.hashers import make_password#, check_password
 from datetime import datetime
-from django.http import HttpResponse
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 
 import reportlab
 import io
@@ -27,6 +20,105 @@ from reportlab.pdfgen import canvas
 from django.db.models import F, Func
 
 
+
+def login_adm(request):
+    
+    if request.POST:
+        username = request.POST['username']
+        password = request.POST['password']
+        
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return render(request, 'login.html')
+        else:
+            return redirect('home')
+            
+    return render(request, 'login.html')
+
+def logout_adm(request):
+    logout(request)
+    return redirect('login')
+
+def create_user_login(request):
+    if request.POST:
+        try:
+            adm_user = request.POST.get('admin_user')
+            adm_pass = request.POST.get('admin_pass')
+
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            name = request.POST.get('name')
+            lname = request.POST.get('lname')
+            email = request.POST.get('email')
+
+            test = authenticate(request, username=adm_user, password=adm_pass)
+
+            if test == request.user:
+                user = User.objects.create_user(username, email, password)
+                user.first_name = name
+                user.last_name = lname
+                user.is_superuser = False
+                user.is_staff = True
+                user.save()
+                msg = f"El usuario {username} se creó correctamente"
+                return render(request, 'crear_admin/success.html', {'msg':msg})
+            else:
+                msg = f"Error al ingresar los datos del administrador actual, ingrese nuevamente el usuario y contraseña"
+                return render(request, 'crear_admin/error.html', {'msg':msg})    
+
+        except IntegrityError:
+            msg = f"El usuario {username} ya existe"
+            return render(request, 'crear_admin/error.html', {'msg':msg})
+        except:
+            msg = "Ocurrió un error inesperado"
+            return render(request, 'crear_admin/error.html', {'msg':msg})
+    else:
+         return render(request, 'crear_admin/index.html', {})
+
+
+def edit_user_login(request):
+    if request.POST:
+        try:
+            adm_user = request.POST.get('admin_user')
+            adm_pass = request.POST.get('admin_pass')
+
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            name = request.POST.get('name')
+            lname = request.POST.get('lname')
+            email = request.POST.get('email')
+
+            test = authenticate(request, username=adm_user, password=adm_pass)
+
+            if test == request.user:
+                user = User.objects.get(username=request.user)
+                user.first_name = name
+                user.last_name = lname
+                user.email = email
+                user.is_superuser = False
+                user.is_staff = True
+                user.password = make_password(password)
+                user.username = username
+                user.save()
+                msg = f"El usuario {username} se creó correctamente"
+                return render(request, 'crear_admin/success.html', {'msg':msg})
+            else:
+                msg = f"Error al ingresar los datos del administrador actual, ingrese nuevamente el usuario y contraseña"
+                return render(request, 'crear_admin/error.html', {'msg':msg})    
+
+        except IntegrityError:
+            msg = f"El usuario {username} ya existe"
+            return render(request, 'crear_admin/error.html', {'msg':msg})
+        except:
+            msg = "Ocurrió un error inesperado"
+            return render(request, 'crear_admin/error.html', {'msg':msg})
+    else:
+         return render(request, 'editar_admin/index.html', {})
+    return render(request, 'editar_admin/index.html', {})
+
+
+    
 def some_view(request):
     # Create a file-like buffer to receive PDF data.
     buffer = io.BytesIO()
@@ -55,15 +147,7 @@ def getLocalidades():
 
 def getEscuelas():
     return Escuela.objects.all().order_by('escuela')
-# global paises 
-# 
-# global osociales 
-# 
-# global localidades 
-# 
-# global escuelas 
-# escuelas = 
-#*********************variables globales*************
+
 fechaActual = datetime.now()
 anio = fechaActual.year
 byName = ''
@@ -355,9 +439,9 @@ def NewOS(request):#Vista nueva Obra Social
     
 
 def NewEsc(request): #Nueva Escuela
-
+    print(request)
     if isActivatedFunc()==False:
-        return isActivatedView(request) 
+        return isActivatedView(request)
 
     if request.POST:
         e = request.POST #P mayúscula, la otra es minúscula
@@ -366,7 +450,7 @@ def NewEsc(request): #Nueva Escuela
         esc.escuela = e['name'].strip().upper()
         res = saveReg(esc)
         if res == 0:
-            return render(request, "Escuela/success.html")
+            return render(request, "Escuela/success.html", {'user': user})
         elif res == 1: 
             return render(request, "Escuela/error.html", {'error': 'La Escuela ingresada ya se encuentra registrada'})
         else:

@@ -1,0 +1,27 @@
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a href="#" class="nav-link text-success" id="contact-tab"  data-bs-target="#contact" type="button" role="tab" aria-controls="delete" aria-selected="false">Usted se logueó como: <strong>{{request.user}}</strong></a>
+    </li>
+    <li class="nav-item" role="presentation" >
+      <a href="{% url 'Create' %}"  class="nav-link {% if request.path == '/create/' %} active disabled {% endif %}" id="home-tab"  data-bs-target="#Home" type="button" role="tab" aria-controls="create" aria-selected="false">Registrar Niño</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a href="{% url 'List' %}" class="nav-link {% if request.path == '/listado/' %} active disabled {% endif %}" id="contact-tab"  data-bs-target="#contact" type="button" role="tab" aria-controls="delete" aria-selected="false">Listado Niños</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a href="{% url 'NewOS' %}" class="nav-link {% if request.path == '/Nueva-Obra-Social/' %} active disabled {% endif %}" id="contact-tab"  data-bs-target="#contact" type="button" role="tab" aria-controls="delete" aria-selected="false">Nueva Obra Social</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a href="{% url 'NewEsc' %}" class="nav-link {% if request.path == '/Nueva-Escuela/' %} active disabled {% endif %}" id="contact-tab"  data-bs-target="#contact" type="button" role="tab" aria-controls="delete" aria-selected="false">Nueva Escuela</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a href="{% url 'create_admin' %}" class="nav-link {% if request.path == '/create_admin/' %} active disabled {% endif %}" id="contact-tab"  data-bs-target="#contact" type="button" role="tab" aria-controls="delete" aria-selected="false">Crear Admin</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a href="{% url 'editar_admin' %}" class="nav-link {% if request.path == '/edit_admin/' %} active disabled {% endif %}" id="contact-tab"  data-bs-target="#contact" type="button" role="tab" aria-controls="delete" aria-selected="false">Editar Admin</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a href="{% url 'logout' %}" class="nav-link btn-danger" id="contact-tab"  data-bs-target="#contact" type="button" role="tab" aria-controls="delete" aria-selected="false">Cerrar Sesión</a>
+    </li>
+    
+</ul>

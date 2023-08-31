@@ -7,9 +7,13 @@ from hospital import views
 urlpatterns = [
     #path('admin/', admin.site.urls),
     path('', views.create, name="home"),
+    path('login/', views.login_adm, name='login'),
+    path('logout/', views.logout_adm, name='logout'),
     #path('pdf/', views.some_view, name="pdf"),
     
-    path('create/', views.create, name="Create"),    
+    path('create/', views.create, name="Create"),
+    path('edit_admin/', views.edit_user_login, name="editar_admin"),
+    path('create_admin/', views.create_user_login, name="create_admin"),
     path('listado/', views.listado, name="List"),
     path('listado/alfa', views.listado_alf, name="ListAlfa"),
 
