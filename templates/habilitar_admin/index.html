@@ -1,0 +1,76 @@
+<title>Habilitar/Deshabilitar Admin</title>
+{% extends "base.html" %}
+{% block content %}
+{% if request.user.is_superuser %}
+    {% if admins %}
+    <body >
+        <br><br>
+        <div class="container">
+            <h3>Habilitar o deshabilitar administradores</h3>
+        <br>
+        </div>
+
+        <div class="row-col-5">
+            <div class="container">
+                <div class="col">
+                    <table class="table table-responsive table-striped">
+                        <tbody class="">
+                            <!--table-dark-->
+                            <thead>
+                                <th>Apellido</th>
+                                <th>Nombre</th>                            
+                                <th>Usuario</th>
+                                <th>Correo</th>
+                                <th>Estado</th>
+                                <th>-</th>
+                            </thead>
+
+                            {%for a in admins %}
+                                <tr scope="row" >
+                                    <form method="POST">
+                                        {%csrf_token%}
+                                        <td>{{a.last_name}}</td>
+                                        <td>{{a.first_name}}</td>
+                                        <td>{{a.username}}</td>
+                                        <td>{{a.email}}</td>
+                                        {% if a.is_active == True %}
+                                        <td class="text-success" ><strong>Habilitado</strong></td>
+                                        {% else %}
+                                        <td class="text-danger"><strong>Deshabilitado</strong></td>
+                                        {% endif %}
+                                        <td> {% if a.is_active %} 
+                                                <button type="submit" class="btn btn-danger btn-sm">Cambiar</a>
+                                            {% else  %}
+                                                <button type="submit" class="btn btn-success btn-sm">Cambiar</a>
+                                            {% endif %}   </td>
+                                        <input type="hidden" value="{{a.id}}" name="id_user" id="id_user">
+                                    </form>
+                                </tr>
+                            {% endfor %} 
+                            
+                        </tbody>
+                    </table>
+                    {% if admins.has_previous %}
+                        <a class="btn btn-primary" href="?page={{chicos.previous_page_number}}" >Anterior</a>
+                    {% endif %}
+
+                    {% if admins.has_next %}
+                        <a class="btn btn-primary" href="?page={{chicos.next_page_number}}" >Siguiente</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </body>
+
+ 
+
+    {% else %}
+        <br><br>
+        <h3 class="container">Actualmente no existen administradores</h3>
+        <br><br>
+    {% endif %}
+
+{% endif %}
+
+{% endblock %}
+

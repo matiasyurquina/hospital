@@ -26,13 +26,14 @@ def login_adm(request):
     if request.POST:
         username = request.POST['username']
         password = request.POST['password']
-        
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return render(request, 'login.html')
-        else:
             return redirect('home')
+        else:
+            msg = "El usuario y/o contraseña ingresados no son correctos, intente nuevamente."
+            return render(request, 'login.html', {'msg': msg})
+            
             
     return render(request, 'login.html')
 
@@ -40,26 +41,54 @@ def logout_adm(request):
     logout(request)
     return redirect('login')
 
+
+def enable_admin(request):
+    if request.user.is_superuser == False:
+        return redirect('home')
+    
+    admins = User.objects.all().filter(is_superuser='False').order_by('last_name', 'first_name')
+    
+    if request.POST.get("id_user"):
+        id = request.POST.get("id_user")
+        admin = User.objects.get(id=id)
+        hab = request.POST.get("habilitar")
+        
+        if admin.is_active: 
+            admin.is_active = False
+            saveReg(admin)
+        else:
+            admin.is_active = True
+            saveReg(admin)
+
+        return render(request, 'habilitar_admin/index.html', {'admins': admins, 'admin': admin,'id_user': id})
+    return render(request, 'habilitar_admin/index.html', {'admins': admins})
+
+    
+
 def create_user_login(request):
+    if request.user.is_superuser == False:
+        return redirect('home')
+
     if request.POST:
         try:
-            adm_user = request.POST.get('admin_user')
+            adm_user = request.POST.get('admin_user').strip(" ")
             adm_pass = request.POST.get('admin_pass')
 
             username = request.POST.get('username')
             password = request.POST.get('password')
-            name = request.POST.get('name')
-            lname = request.POST.get('lname')
-            email = request.POST.get('email')
+            name = request.POST.get('name').strip(" ").upper()
+            lname = request.POST.get('lname').strip(" ").upper()
+            email = request.POST.get('email').strip(" ").upper()
 
             test = authenticate(request, username=adm_user, password=adm_pass)
 
-            if test == request.user:
+            if test == request.user:#el usuario es validado
                 user = User.objects.create_user(username, email, password)
                 user.first_name = name
                 user.last_name = lname
                 user.is_superuser = False
                 user.is_staff = True
+                user.email = email
                 user.save()
                 msg = f"El usuario {username} se creó correctamente"
                 return render(request, 'crear_admin/success.html', {'msg':msg})
@@ -78,16 +107,16 @@ def create_user_login(request):
 
 
 def edit_user_login(request):
-    if request.POST:
+    if request.POST:#se hizo submit
         try:
-            adm_user = request.POST.get('admin_user')
+            adm_user = request.POST.get('admin_user').strip(" ")
             adm_pass = request.POST.get('admin_pass')
 
             username = request.POST.get('username')
             password = request.POST.get('password')
-            name = request.POST.get('name')
-            lname = request.POST.get('lname')
-            email = request.POST.get('email')
+            name = request.POST.get('name').strip(" ").upper()
+            lname = request.POST.get('lname').strip(" ").upper()
+            email = request.POST.get('email').strip(" ").upper()
 
             test = authenticate(request, username=adm_user, password=adm_pass)
 
@@ -96,26 +125,30 @@ def edit_user_login(request):
                 user.first_name = name
                 user.last_name = lname
                 user.email = email
-                user.is_superuser = False
                 user.is_staff = True
                 user.password = make_password(password)
                 user.username = username
                 user.save()
-                msg = f"El usuario {username} se creó correctamente"
-                return render(request, 'crear_admin/success.html', {'msg':msg})
+                msg = f"El usuario {request.user} se editó correctamente"
+                return render(request, 'editar_admin/success.html', {'msg':msg})
             else:
                 msg = f"Error al ingresar los datos del administrador actual, ingrese nuevamente el usuario y contraseña"
-                return render(request, 'crear_admin/error.html', {'msg':msg})    
+                return render(request, 'editar_admin/error.html', {'msg':msg})    
 
         except IntegrityError:
             msg = f"El usuario {username} ya existe"
-            return render(request, 'crear_admin/error.html', {'msg':msg})
+            return render(request, 'editar_admin/error.html', {'msg':msg})
         except:
             msg = "Ocurrió un error inesperado"
-            return render(request, 'crear_admin/error.html', {'msg':msg})
-    else:
-         return render(request, 'editar_admin/index.html', {})
-    return render(request, 'editar_admin/index.html', {})
+            return render(request, 'editar_admin/error.html', {'msg':msg})
+    else:#No se hizo submit
+         
+        try:
+            user = User.objects.get(username=request.user)
+        except:
+            user = None
+         
+    return render(request, 'editar_admin/index.html', {'user': user})
 
 
     
@@ -450,7 +483,7 @@ def NewEsc(request): #Nueva Escuela
         esc.escuela = e['name'].strip().upper()
         res = saveReg(esc)
         if res == 0:
-            return render(request, "Escuela/success.html", {'user': user})
+            return render(request, "Escuela/success.html")
         elif res == 1: 
             return render(request, "Escuela/error.html", {'error': 'La Escuela ingresada ya se encuentra registrada'})
         else:

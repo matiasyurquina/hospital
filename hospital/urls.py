@@ -13,6 +13,7 @@ urlpatterns = [
     
     path('create/', views.create, name="Create"),
     path('edit_admin/', views.edit_user_login, name="editar_admin"),
+    path('enable_admin/', views.enable_admin, name="enable_admin"),
     path('create_admin/', views.create_user_login, name="create_admin"),
     path('listado/', views.listado, name="List"),
     path('listado/alfa', views.listado_alf, name="ListAlfa"),
