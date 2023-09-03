@@ -4,14 +4,11 @@
 <title> Buscar por DNI </title>
 {% include "listado/listMenu.html" %}
 
-<div class="container">
-    <p >
-      <h4 class="text-danger">{{error}}</h4>
-    </p>
-</div>
 
-<div class="container">
-    <div>
+<h4 class="text-danger text-center">{{error}}</h4>
+
+<div class="d-flex justify-content-between align-items-center">
+    <div class="mb-3 mx-auto p-2">
         <br>
         <form action="" method="POST"> {%csrf_token%}
             <label>Ingrese el DNI <input class="form-control" type="text" id="dni" name="dni" pattern="[0-9]{3,9}" required></label>

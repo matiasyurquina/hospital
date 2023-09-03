@@ -74,7 +74,7 @@
 
         <div class="col-sm-6">
           <br>
-          <label for="tutor" class="form-label">Tutor</label>
+          <label for="pmot" class="form-label">Tutor</label>
           <input type="text" class="form-control" id="pmot" name="pmot" placeholder="" value="{{persona.pmot}}" pattern="[a-zA-Z áÁéÉíÍóÓúÚ]{2,100}" required>
         </div>
 
@@ -94,7 +94,7 @@
   
         <div class="col-sm-6">
             <br>
-            <label for="pais" class="form-label">País</label>
+            <label for="idPais" class="form-label">País</label>
             <select class="form-control col-sm-6" id="idPais" name="idPais" required>
               {% for pais in paises %} 
                 {%if pais.idPais == persona.idPais.idPais %}
@@ -109,7 +109,7 @@
       </div>      
 
       <br>
-      <label for="osocial" class="form-label">Obra Social</label>
+      <label for="idObra" class="form-label">Obra Social</label>
       <select class="form-control col-sm-6" id="idObra" name="idObra" required>
           {% for os in osociales %} <!-- recorro las obras sociales-->
                 {% if os.idOsocial == persona.idObra.idOsocial %}
@@ -120,7 +120,7 @@
           {% endfor %}
       </select>
       <br>
-      <label for="localidad" class="form-label">Localidad</label>
+      <label for="idLocalidad" class="form-label">Localidad</label>
       <select class="form-control col-sm-6" id="idLocalidad" name="idLocalidad" required>
 
             {% for loc in localidades %}
@@ -133,7 +133,7 @@
       </select>
 
       <br>
-      <label for="escuela" class="form-label">Escuela</label>
+      <label for="idEsc" class="form-label">Escuela</label>
       <select class="form-control col-sm-6" id="idEsc" name="idEsc" required>
           {%for e in escuelas%}
           {% if persona.idEsc.idEsc == e.idEsc %}
@@ -148,7 +148,7 @@
         <div class="col-md-4">
           <br>
           <label for="nac" class="form-label">Fecha de Nacimiento</label>
-          <input minlength="2010-01-01" type="date" name="nac" value="{{persona.nac.year}}-{%if persona.nac.month > 9 %}{{persona.nac.month}}{%else%}0{{persona.nac.month}}{%endif%}-{%if persona.nac.day > 9 %}{{persona.nac.day}}{%else%}0{{persona.nac.day}}{%endif%}">
+          <input minlength="2010-01-01" type="date" name="nac" id="nac" value="{{persona.nac.year}}-{%if persona.nac.month > 9 %}{{persona.nac.month}}{%else%}0{{persona.nac.month}}{%endif%}-{%if persona.nac.day > 9 %}{{persona.nac.day}}{%else%}0{{persona.nac.day}}{%endif%}">
         </div>
         <br>
         <input type="hidden" name="update" value="True">
