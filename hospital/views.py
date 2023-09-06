@@ -13,13 +13,14 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 
-import reportlab
+#import reportlab
 import io
 from django.http import FileResponse
-from reportlab.pdfgen import canvas
+#from reportlab.pdfgen import canvas
 from django.db.models import F, Func
 
-
+#from django.template.loader import render_to_string
+from django.http import HttpResponse
 
 def login_adm(request):
     
@@ -181,9 +182,8 @@ def getLocalidades():
 def getEscuelas():
     return Escuela.objects.all().order_by('escuela')
 
-fechaActual = datetime.now()
-anio = fechaActual.year
-byName = ''
+#fechaActual = datetime.now()
+#anio = fechaActual.year
 isActivated = False
 
 def set_anio(param):
@@ -368,7 +368,6 @@ def listado(request):
     return render(request, "listado/index.html")
 #************************************LISTADO POR NOMBRE************************************
 def buscarPorNombre(request):#EDIT
-    #TERCERO
     byName = ""
     if isActivatedFunc()==False:
         return isActivatedView(request)
@@ -379,15 +378,18 @@ def buscarPorNombre(request):#EDIT
         ctx = {'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades':getLocalidades(), 'escuelas':getEscuelas()}
         return render(request, 'listado/verAlfa.html', ctx)
 
-    if request.POST.get('byName') != None and request.POST.get('byName').strip(" ") != "":# se buscó algo
-        
+    if request.POST or request.GET.get('byName'): #and request.POST.get('byName').strip(" ") != "":# se buscó algo
         byName = request.POST.get('byName')
+        if byName == None:
+            byName = request.GET.get('byName')
+
         chicos = Persona.objects.all().filter(Q(nombre__icontains=byName)|Q(apellido__icontains=byName))
         if chicos: #Se encuentra un pendejo
-            paginator = Paginator(chicos, 10)
+            paginator = Paginator(chicos, 20)
             page = request.GET.get('page')
             chicos = paginator.get_page(page)
-            return render(request, 'listado/buscarPorNombre/index.html', {'chicos': chicos}) #se muestran resultados
+
+            return render(request, 'listado/buscarPorNombre/index.html', {'chicos': chicos, 'byName': byName}) #se muestran resultados
         else:#No se encuentra ningún pendejo
             return render(request, 'listado/buscarPorNombre/index.html', {'error': 'No se encontró ningún niño con el nombre indicado'})
     else:#no se buscó nada
@@ -403,7 +405,7 @@ def listado_alf(request):#EDIT
 
     if P == None : #Si no se apretó ningun botón "Ver"
         chicos = Persona.objects.all().order_by('apellido', 'nombre')
-        paginator = Paginator(chicos, 10)
+        paginator = Paginator(chicos, 20)
         page = request.GET.get('page')
         chicos = paginator.get_page(page)
         return render(request, "listado/listarAlfabetico.html", {'chicos': chicos, 'idPersona':P})
@@ -414,32 +416,33 @@ def listado_alf(request):#EDIT
         return render(request, 'listado/verAlfa.html', ctx)
 #*************************************LISTADO POR AÑO*************************************
 def listado_porAnio(request):
-
     if isActivatedFunc()==False:
         return isActivatedView(request)
         
     updateReg(request)
-
-    P = request.POST.get('idPersona')
-    if P != None:
-        persona = getPersonabyID(P)
-        ctx = {'idPersona': P, 'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades': getLocalidades(), 'escuelas':getEscuelas()}
-        return render(request, 'listado/verAlfa.html', ctx)
-
     anios = Persona.objects.dates('fecha_registro', 'year').distinct()
     listAnios = []
     for a in anios:
         listAnios.append(a.year)
+    P = request.POST.get('idPersona')
 
+    if P != None:
+        persona = getPersonabyID(P)
+        ctx = {'idPersona': P, 'persona': persona, 'paises': getPaises(), 'osociales': getOSociales(), 'localidades': getLocalidades(), 'escuelas':getEscuelas()}
+        return render(request, 'listado/verAlfa.html', ctx)
+    
     if len(listAnios) != 0:#si hay registros
         anio_selected = request.POST.get('anio')#si se seleccionó un año
         
+        if anio_selected==None:
+            anio_selected = request.GET.get('anio')
+
         if anio_selected != None:#se seleccionó un año
             chicos = Persona.objects.filter(fecha_registro__year=anio_selected)
-            paginator = Paginator(chicos, 10)
+            paginator = Paginator(chicos, 20)
             page = request.GET.get('page')
             chicos = paginator.get_page(page)
-            ctx = {'anios': listAnios, 'chicos': chicos}
+            ctx = {'anios': listAnios, 'chicos': chicos, 'anio': anio_selected}
             return render(request, "listado/listarPorAnio.html", ctx)
         else: #No se seleccionó nada todavía; Muestra todos los años
             ctx = {'anios': listAnios}
@@ -448,7 +451,7 @@ def listado_porAnio(request):
     else:#si no existen registros
         ctx = {'error': 'No existen registros todavía en esta base de datos'}
         return render(request, "listado/listarPorAnio.html", ctx)
-
+    
 
 def NewOS(request):#Vista nueva Obra Social
     if isActivatedFunc()==False:
