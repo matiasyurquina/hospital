@@ -87,6 +87,17 @@ DATABASES = {
 }
 
 
+# DATABASES = {
+#  'default': {
+#      'ENGINE': 'django.db.backends.mysql',
+#      'NAME': 'hospitalsaravia$hospital',
+#      'USER': 'hospitalsaravia',
+#      'PASSWORD': 'G2220HDA',
+#      'HOST': 'hospitalsaravia.mysql.pythonanywhere-services.com',  # Puedes cambiarlo si la base de datos está en otro servidor
+#      'PORT': '',       # Puerto por defecto de MySQL
+#  }
+# }
+
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
