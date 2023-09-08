@@ -19,55 +19,52 @@
 </style>
 
 <title>Inicio - Registro</title>
-
-<link href="{% static 'form-validation.css' %}" rel="stylesheet"> 
 </head>
 
-
-<body class="bg-light">
-  <div class="container">
-  
-    <div class="py-5">
+<body class="">
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="mb-3 mx-auto p-2">
       <h2>Ingreso de Datos</h2>
       <p class="lead">Ingresar todos los datos necesarios por favor, de lo contrario los datos no se guardarán</p>
+
+      <h3 class="text-success"> <strong>{{activated}}</strong></h3>
+      
     </div>
-
-    <div class="row g-5"><!--MAIN--> 
-
-        <h3 class="text-success"> <strong>{{activated}}</strong></h3>
-        <h4 class="mb-3">Datos</h4>
-
-        <form action="" method="POST" class="needs-validation" > {%csrf_token%}
-          <div class="container">
-            <div class="row g-3">
-                <div class="col-sm-6">
+  </div>
+  <h4 class="text-center">Datos</h4>
+  
+  <div class="">
+      <div class="d-flex justify-content-between align-items-center"><!--MAIN-->
+        <form action="" method="POST" class="mb-3 mx-auto p-2" > {%csrf_token%}
+  
+                <div class="col-sm-12">
                   <label for="name" class="form-label">Nombre</label>
                   <input type="text" class="form-control" id="name" name="name" placeholder="" value="" pattern="[a-zA-Z áÁéÉíÍóÓúÚ]{2,100}" required>
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-12">
                   <label for="lname" class="form-label">Apellido</label>
                   <input type="text" class="form-control" id="lname" name="lname" placeholder="" value="" pattern="[a-zA-Z áÁéÉíÍóÓúÚ]{2,100}" required><br>
                 </div>
                 
-                <div class="col-sm-6">
+                <div class="col-sm-12">
                   <label for="dni" class="form-label">DNI</label>
                   <input type="number" class="form-control" id="dni" name="dni" min="999" max="9999999999" placeholder="Ej: 39123456 SIN PUNTOS" value="" required>
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-12">
                   <label for="cel" class="form-label">Celular (Opcional)</label>
                   <input type="number" class="form-control" id="cel" name="cel" min="1000000000" max="9999999999" placeholder="Ej: 3871234567 SIN 15 Y SIN 0"><br>
                 </div>
 
 
-                <div class="col-sm-6">
+                <div class="col-sm-12">
                   <br>
                   <label for="dir" class="form-label">Dirección</label>
                   <input type="text" class="form-control" id="dir" name="dir" placeholder="Ej: 9 de Julio 358" required>
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-12">
                   <br>
                   <label for="email" class="form-label">Email <span class="text-muted">(Opcional)</span></label>
                   <input type="email" class="form-control" id="email" name="email" placeholder="correo@dominio.com">
@@ -79,19 +76,19 @@
                   <input type="text" class="form-control" id="barrio" name="barrio" required>
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-12">
                   <br>
                   <label for="dniTutor" class="form-label">DNI Tutor</label>
                   <input type="number" class="form-control" id="dniTutor" name="dniTutor" min="999" max="999999999999" placeholder="DNI sin puntos" required>
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-12">
                   <br>
                   <label for="pmot" class="form-label">Tutor</label>
                   <input type="text" class="form-control" id="pmot" name="pmot" placeholder="" pattern="[a-zA-Z áÁéÉíÍóÓúÚ]{2,100}" required>
                 </div>
                 
-              <div class="col-sm-6">
+              <div class="col-sm-12">
                 <br>
                 <label for="sexo" class="form-label">Sexo</label>
                 
@@ -101,7 +98,7 @@
                 </select> 
               </div>
 
-              <div class="col-sm-6">
+              <div class="col-m-12">
                 <br>
                 <label for="pais" class="form-label" >País</label>
                 <select class="form-control col-sm-6" id="pais" name="pais" style="width: 200px;" required> <br>
@@ -116,7 +113,7 @@
               </div>
 
               
-              <div class="col-sm-6">
+              <div class="col-sm-12">
                 <br>
                 <label for="osocial" class="form-label">Obra Social</label>
                 <select class="form-control" id="osocial" name="osocial" required><br>
@@ -128,7 +125,7 @@
                 
                 
                 
-              <div class="col-sm-6">
+              <div class="col-sm-12">
                 <br>
                 <label for="localidad" class="form-label">Localidad</label>
                 <select class="form-control" id="localidad" name="localidad" required> <br>
@@ -143,7 +140,7 @@
                 </select>
               </div>
                 
-              <div class="col-sm-6">
+              <div class="col-sm-12">
                   <br>
                   <label for="escuela" class="form-label">Escuela</label>
                   <select class="form-control" id="escuela" name="escuela" required> <br>
@@ -154,26 +151,22 @@
               </div>
     
                 
-              <div class="col-md-4">
+              <div class="col-md-12">
                   <br>
                   <label for="nac" class="form-label">Fecha de Nacimiento</label>
                   <input type="date" name="nac" id="nac" value="2018-01-01" class="form-control"><br>
-                  
+                  <br><br><br>
               </div>
                 
               
                 
-              <div class="col-md-4">
+              <div class="col-md-2">
                 <br>
                   <button class="w-100 btn btn-primary btn-lg" type="submit">Registrar</button>
               </div>
-            
-            </div><!--FINAL DIV MAIN FORM-->
-          </div>
         </form>
     </div> <!--MAIN-->
   </div>
 </body>
-<script src="{% static 'form-validation.js'%}"></script>
 
 {% endblock %}
